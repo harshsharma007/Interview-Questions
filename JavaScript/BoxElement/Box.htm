@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        #container {
+            position: absolute;
+            background: purple;
+            width: 1200px;
+            height: 600px;
+        }
+
+        #box {
+            position: absolute;
+            background: red;
+            width: 30px;
+            height: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="box" style="top: 0px; left: 0px;"></div>
+    </div>
+</body>
+
+<script>
+    let box = document.getElementById("box");
+    let height = document.getElementById("container").offsetHeight;
+    let width = document.getElementById("container").offsetWidth;
+
+    let getAngle = function (x1, y1, x2, y2) {
+        return Math.atan2(y2 - y1, x2 - x1);
+    }
+
+    let state = 0;
+    let speed = 10;//how many pixels to move per interval
+    let x = 0, y = 0;
+    let xTarget = 0, yTarget = 0;
+
+    window.setInterval(() => {
+
+        //we do not account for the box's size here, but if we needed to we could add or subtract it to the target as needed
+        switch (state) {
+            case 0:
+                xTarget = 0;
+                yTarget = height;
+                break;
+            case 1:
+                xTarget = width;
+                yTarget = 0;
+                break;
+            case 2:
+                xTarget = width;
+                yTarget = height;
+                break;
+            case 3:
+                xTarget = 0;
+                yTarget = 0;
+                break;
+        }
+
+        //do we still have more steps left? calculate the angle to the target, then step in that direction
+        if (state < 4) {
+            var angle = -getAngle(x, y, xTarget, yTarget) + Math.PI / 2;
+            x += Math.sin(angle) * speed;
+            y += Math.cos(angle) * speed;
+        }
+
+        //are we close enough to the target? snap to the target, then switch to the next state
+        //note: you may want to calculate the actual distance here instead
+        if (Math.abs(xTarget - x) < speed && Math.abs(yTarget - y) < speed) {
+            x = xTarget;
+            y = yTarget;
+            state++;
+        }
+
+        if (state >= 4) state = 0;//if you want the movement to loop
+
+        box.style.left = x + 'px';
+        box.style.top = y + 'px';
+    }, 100);
+</script>
+
+</html>
